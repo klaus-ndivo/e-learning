@@ -32,8 +32,8 @@
       --radius: 18px;
       --radius-lg: 24px;
       --container: 1160px;
-      /* Fluid horizontal inset: never flush to viewport edge */
-      --gutter: clamp(18px, 4.5vw, 42px);
+      /* Fluid horizontal inset: 320px–430px phones need usable width */
+      --gutter: clamp(14px, 4.2vw, 42px);
 
       --s-1: 6px;
       --s0: 10px;
@@ -63,6 +63,8 @@
       overflow-x:hidden;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
     }
 
     a{ color:inherit; text-decoration:none; }
@@ -171,25 +173,29 @@
       -webkit-backdrop-filter: blur(20px);
     }
 
-    /* Navbar */
+    /* Navbar — fixed bar must stay visible on iOS / Samsung (stacking + safe areas) */
     header{
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      z-index: 50;
+      width: 100%;
+      z-index: 1000;
       padding-top: env(safe-area-inset-top, 0px);
       padding-left: env(safe-area-inset-left, 0px);
       padding-right: env(safe-area-inset-right, 0px);
       box-sizing: border-box;
       min-height: calc(var(--nav-h) + env(safe-area-inset-top, 0px));
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
     }
     .nav{
       min-height: var(--nav-h);
       display:flex;
+      flex-wrap: nowrap;
       align-items:center;
       justify-content: space-between;
-      gap: clamp(10px, 2.5vw, var(--s3));
+      gap: clamp(8px, 2vw, var(--s3));
     }
     .nav-shell{
       min-height: var(--nav-h);
@@ -207,12 +213,27 @@
     .brand{
       display:flex;
       align-items:center;
-      gap: 12px;
+      gap: 10px;
       min-width: 0;
-      flex: 1 1 auto;
+      flex: 1 1 0;
+      max-width: 100%;
+      text-decoration: none;
     }
-    .brand > span:last-child{
+    .brand-text{
+      font-family: Syne, Inter, system-ui;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      font-size: clamp(0.92rem, 3.6vw, 1.125rem);
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       min-width: 0;
+    }
+    .brand-text .brand-short{ display: none; }
+    .footer-brand .brand-text{
+      white-space: normal;
     }
     .logo{
       width: 38px;
@@ -229,34 +250,24 @@
     @keyframes logoIn{
       to{ transform: translateY(0); opacity: 1; }
     }
-    .brand strong{
-      font-family: Syne, Inter, system-ui;
-      letter-spacing: -0.02em;
-      font-weight: 800;
-      line-height: 1.05;
-      display:block;
-    }
-    .brand span{
-      display:block;
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-
     .nav-links{
       display:none;
       align-items:center;
       justify-content:center;
-      gap: 22px;
+      flex-wrap: nowrap;
+      gap: clamp(8px, 1.2vw, 22px);
       flex: 1;
       position: relative;
+      min-width: 0;
     }
     .nav-links a{
-      font-size: 14px;
+      font-size: clamp(12px, 1.1vw, 14px);
       color: rgba(241,245,249,0.82);
-      padding: 10px 8px;
+      padding: 10px clamp(4px, 0.8vw, 8px);
       position: relative;
       transition: color 180ms var(--ease-out);
+      white-space: nowrap;
+      flex-shrink: 0;
     }
     .nav-links a:hover{ color: rgba(241,245,249,0.98); }
     .nav-links a[aria-current="page"]{ color: rgba(241,245,249,1); }
@@ -276,11 +287,14 @@
     .nav-actions{
       display:flex;
       align-items:center;
-      gap: 8px;
+      gap: 6px;
       min-width: 0;
       flex: 0 0 auto;
+      flex-shrink: 0;
       justify-content: flex-end;
     }
+    .nav-apply-full{ display: inline; }
+    .nav-apply-short{ display: none !important; }
     @media (min-width: 1024px){
       .nav-actions{ gap: 10px; }
     }
@@ -294,10 +308,16 @@
       cursor:pointer;
       display:inline-flex;
       align-items:center;
+      justify-content: center;
       gap: 10px;
       transition: transform 180ms var(--ease-out), box-shadow 220ms var(--ease-out), border-color 220ms var(--ease-out), background 220ms var(--ease-out);
       user-select:none;
-      white-space: nowrap;
+      white-space: normal;
+      text-align: center;
+      max-width: 100%;
+    }
+    @media (min-width: 768px){
+      .btn{ white-space: nowrap; }
     }
     .btn:hover{
       transform: translateY(-1px);
@@ -367,9 +387,11 @@
       display:block;
       position: fixed;
       top: calc(var(--nav-h) + env(safe-area-inset-top, 0px) + 10px);
-      left: 16px;
-      right: 16px;
-      z-index: 60;
+      left: max(12px, env(safe-area-inset-left, 0px));
+      right: max(12px, env(safe-area-inset-right, 0px));
+      width: auto;
+      box-sizing: border-box;
+      z-index: 1100;
       border-radius: var(--radius-lg);
       padding: 14px;
       transform: translateY(-10px);
@@ -390,6 +412,11 @@
       border-radius: 14px;
       color: rgba(241,245,249,0.9);
       transition: background 180ms var(--ease-out), box-shadow 220ms var(--ease-out);
+      white-space: nowrap;
+      gap: 10px;
+    }
+    .mobile-panel a span:last-child{
+      flex-shrink: 0;
     }
     .mobile-panel a:hover{
       background: rgba(255,255,255,0.05);
@@ -402,11 +429,20 @@
     }
     .mobile-panel .meta{
       display:flex;
-      align-items:center;
-      justify-content: space-between;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      justify-content: flex-start;
       padding: 10px 12px;
       color: var(--muted);
       font-size: 12px;
+    }
+    @media (min-width: 380px){
+      .mobile-panel .meta{
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
     }
 
     /* Hero */
@@ -417,6 +453,7 @@
       position: relative;
       min-height: calc(100vh - var(--nav-h) - env(safe-area-inset-top, 0px));
       min-height: calc(100svh - var(--nav-h) - env(safe-area-inset-top, 0px));
+      min-height: calc(100dvh - var(--nav-h) - env(safe-area-inset-top, 0px));
       display:flex;
       align-items:center;
       justify-content: center;
@@ -456,7 +493,7 @@
       margin-inline: auto;
       text-align: center;
       line-height: 1.08;
-      font-size: clamp(32px, 7vw, 64px);
+      font-size: clamp(1.65rem, 8vw + 0.35rem, 4rem);
     }
     .hero-copy .lead{
       margin-inline: auto;
@@ -545,6 +582,11 @@
       margin-top: 14px;
       color: var(--muted);
       font-size: 12px;
+      padding-inline: 2px;
+    }
+    .subnote a{
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
     .subnote strong{
       color: rgba(241,245,249,0.84);
@@ -1041,6 +1083,7 @@
     }
     .card .meta{
       display:flex;
+      flex-wrap: wrap;
       align-items:center;
       justify-content: space-between;
       gap: 10px;
@@ -1058,6 +1101,7 @@
     .enroll{
       margin-top: 14px;
       display:flex;
+      flex-wrap: wrap;
       align-items:center;
       justify-content: space-between;
       gap: 12px;
@@ -1312,6 +1356,7 @@
     }
     .prog .row{
       display:flex;
+      flex-wrap: wrap;
       align-items:baseline;
       justify-content: space-between;
       gap: 12px;
@@ -1415,7 +1460,104 @@
     }
 
     /* Responsive */
-    @media (max-width: 520px){
+    @media (max-width: 767px){
+      :root{ --nav-h: 56px; }
+      .logo{
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        flex-shrink: 0;
+      }
+      .icon-btn{
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        flex-shrink: 0;
+      }
+      .section{
+        padding: clamp(40px, 11vw, 56px) 0;
+      }
+      .section-head{
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--s2);
+        margin-bottom: var(--s3);
+      }
+      .section-head .link{
+        align-self: stretch;
+        justify-content: center;
+        max-width: 100%;
+        white-space: normal;
+        text-align: center;
+      }
+      .hero-copy{
+        max-width: 100%;
+      }
+      .hero-ctas{
+        flex-direction: column;
+        width: 100%;
+        max-width: min(22rem, 100%);
+        margin-inline: auto;
+        align-items: stretch;
+      }
+      .hero-ctas .btn{
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 16px;
+      }
+      .kicker{
+        border-radius: 20px;
+      }
+      .stat .value{
+        font-size: clamp(1.5rem, 7vw, 2.125rem);
+      }
+      .stat .top{
+        flex-wrap: wrap;
+      }
+      .card .title{
+        font-size: clamp(1.05rem, 4.2vw, 1.125rem);
+      }
+      .enroll{
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .enroll .cta{
+        width: 100%;
+        justify-content: center;
+        min-height: 48px;
+      }
+      .cta{
+        padding: 28px clamp(14px, 4vw, 18px);
+      }
+      .cta .row{
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .cta .row .btn{
+        width: 100%;
+        min-height: 48px;
+      }
+      .tabs{
+        gap: 8px;
+      }
+      .tab{
+        padding: 9px 11px;
+        font-size: 13px;
+      }
+      .trust{
+        font-size: 11px;
+        gap: 14px;
+      }
+      .marquee-inner{
+        gap: 16px;
+      }
+      .tilt, #dashTilt{
+        transform: none !important;
+      }
+      footer .brand{
+        flex-wrap: wrap;
+      }
       .course-mini{
         flex-direction: column;
         align-items: stretch;
@@ -1425,8 +1567,53 @@
       }
     }
 
-    @media (max-width: 420px){
-      .brand strong + span{ display: none; }
+    @media (max-width: 480px){
+      .nav-cta-portal{ display: none !important; }
+    }
+
+    @media (max-width: 380px){
+      .nav-apply-full{ display: none !important; }
+      .nav-apply-short{ display: inline !important; }
+    }
+
+    @media (max-width: 340px){
+      .brand-text .brand-long{ display: none; }
+      .brand-text .brand-short{ display: inline; }
+    }
+
+    @media (max-width: 360px){
+      .nav-actions .btn:not(.nav-cta-portal):not(.mobile-toggle){
+        padding: 10px 10px;
+        font-size: 11px;
+      }
+    }
+
+    @media (min-width: 768px) and (max-width: 1099px){
+      .nav-links{
+        justify-content: flex-start;
+        overflow-x: auto;
+        overflow-y: hidden;
+        flex: 1 1 0;
+        min-width: 0;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        overscroll-behavior-x: contain;
+        mask-image: linear-gradient(90deg, transparent, #000 10px, #000 calc(100% - 10px), transparent);
+      }
+      .nav-links::-webkit-scrollbar{
+        display: none;
+        width: 0;
+        height: 0;
+      }
+    }
+
+    @media (min-width: 1100px){
+      .nav-links{
+        justify-content: center;
+        overflow: visible;
+        mask-image: none;
+        flex: 1;
+      }
     }
 
     @media (min-width: 768px){
@@ -1499,18 +1686,17 @@
   <header>
     <div class="nav-shell" id="navShell">
       <div class="container nav" role="navigation" aria-label="Primary">
-        <a class="brand interactive" href="#top">
+        <a class="brand interactive" href="#top" aria-label="Meridian eCampus home">
           <span class="logo" aria-hidden="true">M</span>
-          <span>
-            <strong>Meridian eCampus</strong>
-            <span>Diplomas • Certificates • Advanced Diplomas</span>
-          </span>
+          <strong class="brand-text">
+            <span class="brand-long">Meridian eCampus</span><span class="brand-short" aria-hidden="true">Meridian</span>
+          </strong>
         </a>
 
         <nav class="nav-links" aria-label="Site">
           <a class="nav-link interactive" href="#programs" data-nav>Programs</a>
           <a class="nav-link interactive" href="#courses" data-nav>Courses</a>
-          <a class="nav-link interactive" href="#how" data-nav>How it works</a>
+          <a class="nav-link interactive" href="#how" data-nav>How&nbsp;it&nbsp;works</a>
           <a class="nav-link interactive" href="#why" data-nav>Why Meridian</a>
           <a class="nav-link interactive" href="#testimonials" data-nav>Stories</a>
           <a class="nav-link interactive" href="#apply" data-nav>Apply</a>
@@ -1518,15 +1704,16 @@
         </nav>
 
         <div class="nav-actions">
-          <a class="btn interactive" href="#apply">
+          <a class="btn interactive nav-cta-portal" href="#apply">
             <span>Student Portal</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M7 17L17 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               <path d="M10 7h7v7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </a>
-          <a class="btn btn-primary btn-shimmer interactive" href="#apply">
-            <span>Apply in 2 mins</span>
+          <a class="btn btn-primary btn-shimmer interactive" href="#apply" aria-label="Apply in 2 minutes">
+            <span class="nav-apply-full">Apply in 2 mins</span>
+            <span class="nav-apply-short" aria-hidden="true">Apply</span>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               <path d="M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1546,7 +1733,7 @@
       <div class="row">
         <a class="interactive" href="#programs">Programs <span aria-hidden="true">→</span></a>
         <a class="interactive" href="#courses">Courses <span aria-hidden="true">→</span></a>
-        <a class="interactive" href="#how">How it works <span aria-hidden="true">→</span></a>
+        <a class="interactive" href="#how">How&nbsp;it&nbsp;works <span aria-hidden="true">→</span></a>
         <a class="interactive" href="#why">Why Meridian <span aria-hidden="true">→</span></a>
         <a class="interactive" href="#testimonials">Stories <span aria-hidden="true">→</span></a>
         <a class="interactive" href="#apply">Apply <span aria-hidden="true">→</span></a>
@@ -2064,12 +2251,9 @@
     <div class="container">
       <div class="footer-grid">
         <div class="f-col">
-          <div class="brand" style="min-width: unset;">
+          <div class="brand footer-brand">
             <span class="logo" aria-hidden="true" style="opacity:1; transform:none;">M</span>
-            <span>
-              <strong>Meridian Institute of Professional Studies</strong>
-              <span>Meridian eCampus</span>
-            </span>
+            <strong class="brand-text">Meridian eCampus</strong>
           </div>
           <p class="tagline">
             Proudly Kenyan. Globally modern. Learn online from Nairobi, Kenya — built for focus, clarity, and outcomes you can prove.
